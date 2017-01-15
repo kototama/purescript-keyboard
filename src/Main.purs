@@ -15,8 +15,6 @@ import Signal.DOM (keyPressed)
 import Signal.Time (Time, second, every)
 
 newtype Point = Point {x :: Int, y :: Int}
--- also: CoordinatePair in Signal.DOM
--- http://www.purescript.org/learn/generic/
 
 derive instance genericPoint :: Generic Point
 
@@ -27,42 +25,14 @@ instance showPoint :: Show Point where
 
 point :: Int -> Int -> Point
 point x y = Point {x : x, y : y}
--- { x: _, y: _ }
 
 type Model = {loc :: Point, xd :: Int, yd :: Int, dir :: Point, size :: Int}
-
-
-ifs:: forall a. Array (Tuple Boolean a) -> a -> a
-ifs li z = case uncons li of
-             Just {head : Tuple b y, tail : tl} -> if b then y else ifs tl z
-             Nothing         -> z 
-
-
-inputDir :: Eff _ (Signal Point)
-inputDir = 
-    let 
-        f = \l u d r -> ifs [Tuple l $ Point {x: -1,y:0}, Tuple u $ Point {x:0,y: -1}, Tuple d $ Point {x:0, y : 1}, Tuple r $ Point {x : 1,y: 0}] $ Point {x:0,y:0}
-    in
-      map4 f <$> (keyPressed 39) <*> (keyPressed 39) <*> (keyPressed 39) <*> (keyPressed 39)
-
 
 inputDir2 :: Eff _ (Signal Point)
 inputDir2 = map (\k -> Point { x: 0 , y: if k then  5555555  else 0 }) <$> (keyPressed 68)
 
 input2 :: Eff _ (Signal Point)
 input2 = sampleOn (fps 1.0) <$> inputDir2
-
-
-pplus :: Point -> Point -> Point
-pplus v1 v2 = Point {x : (getX v1) + (getX v2), y : (getY v1) + (getY v2)}
-
-infix 6 pplus as +.
-
-getX :: Point -> Int
-getX (Point p) = p.x
-
-getY :: Point -> Int
-getY (Point p) = p.y
 
 fps :: Time -> Signal Time
 fps x = every (second/x)
